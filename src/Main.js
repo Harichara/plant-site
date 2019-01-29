@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import backgroundImage from './background-image.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faArrowRight, faWindowClose } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faWindowClose } from '@fortawesome/free-solid-svg-icons';
  
 const CLIENT_ID = '20b7c6eabf6e79850e6963a68c878d08ce08faeb26a22ea37d5b1ad2791688f5';
 
@@ -12,23 +12,22 @@ class Main extends Component {
     super(props);
     this.state = {
       value: '',
-      img: [],
       imgInfo: [],
       plantInfo: [],
       togglePlantInfo: false,
       toggleSideBar: true,
-      togglePicInfo: false
+      togglePicInfo: false,
+      toggleSnackbar: false
     }
   }
 
   populateImages = (data) => {
-    this.setState({img: []});
+    this.setState({imgInfo: []});
 
     data.results.map(val => {
       return (
         this.setState({
-          img: [...this.state.img, val.urls.regular],
-          imgInfo: [...this.state.imgInfo ,val.user]
+          imgInfo: [...this.state.imgInfo ,val]
         })
       );
     });
@@ -42,39 +41,40 @@ class Main extends Component {
     try {
       let plantURI = `https://plantsdb.xyz/search?Common_Name=${searchTerm}&fields=Family,Genus,Kingdom,Symbol,State_and_Province`;
       let encodedPlantURI = encodeURI(plantURI);
-      console.log(encodedPlantURI);
 
-      let [plantReq, picReq, wikiReq] = await 
+      let [plantReq, picReq] = await 
       Promise.all([
         fetch(encodedPlantURI),
         fetch(`https://api.unsplash.com/search/photos?query=${searchTerm}&per_page=8`, {
         headers: {'Content-Type': 'application/json', 'Authorization': ` Client-ID ${CLIENT_ID}`}
-      }),
-        fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=&list=search&srlimit=1&utf8=1&srsearch=${searchTerm}`)
-      ]);
+      })]);
 
-      let [plantRes, picRes, wikiRes] = await 
+      let [plantRes, picRes] = await 
       Promise.all([
         plantReq.json(),
-        picReq.json(),
-        wikiReq.json()
+        picReq.json()
       ]);
 
       this.populateImages(picRes);
+
 
       this.setState({
         plantInfo: plantRes.data[0],
         togglePicInfo: true
       });
 
-      console.log(wikiRes.query.search[0]);
-
     } catch(err) {
-      console.log(err.message);
-
       this.setState({
-        plantInfo: ''
+        plantInfo: '',
+        imgInfo: [],
+        toggleSnackbar: !this.state.toggleSnackbar
       });
+
+      setTimeout(() => {
+        this.setState({
+          toggleSnackbar: !this.state.toggleSnackbar
+        })
+      },2000);
     }
   }
 
@@ -125,17 +125,20 @@ class Main extends Component {
         }
 
         {
-          this.state.img.map((img,i) => {
+          this.state.imgInfo.map((img,i) => {
             return(
-              <img key={i} className={`image${i+1}`} src={img} alt='Searched Item' />
+              <a key={i} className={`image${i+1}`} href={img.user.links.html} target='_blank' rel="noopener noreferrer">
+                <img key={i}  src={img.urls.regular} alt='' />
+                <p className='imgName'>{img.user.name}</p>
+              </a>
             )
           })
         }
 
         {
-          this.state.togglePicInfo && (
-            <div className='picInfo'>
-              Click Here For Photo Credits From Unsplash
+          this.state.toggleSnackbar && (
+            <div className='snackbar'>
+              Please Enter A Correct Plant Name
             </div>
           )
         }
