@@ -38,8 +38,6 @@ class Main extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    console.log(process.env);
-
     let searchTerm = this.state.value.toLowerCase();
 
     try {
