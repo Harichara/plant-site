@@ -7,6 +7,17 @@
   height: 100vh;
 }
 
+@media screen and (max-width: 600px) {
+  .App {
+    grid-template-columns: 20px repeat(3, 1fr);
+    overflow-y: auto;
+  }
+
+  .plantContainer:hover {
+    grid-column: 1/span 5;
+  }
+}
+
 .searchBar {
   grid-column: 2/span 4;
   grid-row: 1/2;
@@ -79,6 +90,7 @@
   grid-row: 1/span 3;
   transition: 0.5s;
   background-color: #494a49;
+  position: fixed;
   display: flex;
   padding-right: 2%;
   cursor: pointer;

@@ -3,8 +3,10 @@ import './App.css';
 import backgroundImage from './background-image.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faWindowClose } from '@fortawesome/free-solid-svg-icons';
+
+require('dotenv').config({path: '../src/.env'});
  
-const CLIENT_ID = '20b7c6eabf6e79850e6963a68c878d08ce08faeb26a22ea37d5b1ad2791688f5';
+const CLIENT_ID = process.env.REACT_APP_API_KEY;
 
 class Main extends Component {
 
@@ -35,6 +37,8 @@ class Main extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
+
+    console.log(process.env);
 
     let searchTerm = this.state.value.toLowerCase();
 
